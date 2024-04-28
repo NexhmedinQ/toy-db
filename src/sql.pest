@@ -1,0 +1,16 @@
+WHITESPACE = _{" " | "\n"}
+identifier = @{ 'a'..'z' ~ ASCII_ALPHANUMERIC* }
+type_identifier = @{ 'A'..'Z' ~ ASCII_ALPHANUMERIC* }
+record_type = {"{" ~ identifier ~ ":" ~ type_identifier ~ ("," ~ identifier ~ ":" ~ type_identifier)* ~ "}"}
+sql_type = {type_identifier | record_type}
+int = @{"-"? ~ ("0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT*)}
+bool = {"true" | "false"}
+string = ${ "\"" ~ inner ~ "\"" }
+inner = {ASCII_ALPHANUMERIC*}
+expr = {int | bool | string}
+record_insert = {"{" ~ identifier ~ "=" ~ expr ~ ("," ~ identifier ~ "=" ~ expr)* ~ "}"}
+create = {"create" ~ "table" ~ identifier ~ sql_type}
+insert = {"insert" ~ record_insert ~ "into" ~ identifier}
+select = {"select" ~ "from" ~ identifier}
+statement = {create | insert | select}
+sql_command = _{SOI ~ statement ~ EOI}
